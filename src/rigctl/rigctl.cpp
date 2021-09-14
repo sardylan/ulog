@@ -25,6 +25,10 @@
 
 #define RIGCTL_BUFLEN 8192
 
+#ifndef HAMLIB_FILPATHLEN
+#define HAMLIB_FILPATHLEN FILPATHLEN
+#endif
+
 using namespace ulog::rigctl;
 
 RigCtl::RigCtl(QObject *parent) : Service(parent) {
@@ -291,6 +295,7 @@ void RigCtl::hamlibStart() {
     const char *infoBuffer = rig_get_info(rig);
     qInfo() << "Rig:" << infoBuffer;
 
+#ifdef ULOG_HAMLIB_VERSION_4_2
     qDebug() << "Getting VFO list";
     char rawBuf[RIGCTL_BUFLEN];
     returnCode = rig_get_vfo_list(rig, rawBuf, RIGCTL_BUFLEN);
@@ -302,6 +307,9 @@ void RigCtl::hamlibStart() {
     QString buf(rawBuf);
     QStringList availableVFONames = buf.trimmed().split(" ");
     vfoCount = availableVFONames.size();
+#else
+    vfoCount = 1;
+#endif
 
     qDebug() << "Checking levels";
     if (rig_has_get_level(rig, RIG_LEVEL_RFPOWER))

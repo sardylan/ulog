@@ -66,9 +66,12 @@ namespace ulog::rigctl {
         DD = RIG_MODE_DD,
         C4FM = RIG_MODE_C4FM,
         PKTFMN = RIG_MODE_PKTFMN,
+#ifdef ULOG_HAMLIB_VERSION_4_1
         SPEC = RIG_MODE_SPEC,
+#ifdef ULOG_HAMLIB_VERSION_4_3
         CWN = RIG_MODE_CWN
-
+#endif
+#endif
     };
 
     QString modeToString(const Mode &mode);

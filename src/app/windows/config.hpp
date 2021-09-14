@@ -59,7 +59,7 @@ namespace ulog::app::windows {
 
         void initRigSerialPortComboBoxes();
 
-        void addRigModel(QComboBox *comboBox, qint32 number);
+        void addRigModel(QComboBox *comboBox, qlonglong number);
 
     private slots:
 

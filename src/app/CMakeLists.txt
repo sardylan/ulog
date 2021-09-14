@@ -1,8 +1,6 @@
 find_package(Qt5 REQUIRED COMPONENTS
         Core Gui Svg Widgets Sql SerialPort)
 
-cmake_policy(SET CMP0115 NEW)
-
 configure_file(version.hpp.in version.hpp)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})

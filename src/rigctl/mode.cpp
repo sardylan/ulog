@@ -93,10 +93,14 @@ QString ulog::rigctl::modeToString(const Mode &mode) {
             return "C4FM";
         case Mode::PKTFMN:
             return "PKTFMN";
-        case Mode::SPEC:
-            return "SPEC";
-        case Mode::CWN:
-            return "CWN";
+#ifdef ULOG_HAMLIB_VERSION_4_1
+            case Mode::SPEC:
+                return "SPEC";
+#ifdef ULOG_HAMLIB_VERSION_4_3
+            case Mode::CWN:
+                return "CWN";
+#endif
+#endif
     }
     return "";
 }
