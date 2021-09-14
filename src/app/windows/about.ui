@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>About</class>
+    <widget class="QDialog" name="aboutWindow">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>480</width>
+                <height>360</height>
+            </rect>
+        </property>
+        <property name="windowTitle">
+            <string>About...</string>
+        </property>
+        <property name="windowIcon">
+            <iconset resource="../resources.qrc">
+                <normaloff>:/images/icons/application</normaloff>:/images/icons/application
+            </iconset>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1,0">
+            <item>
+                <widget class="QLabel" name="titleLabel">
+                    <property name="text">
+                        <string>qFM1000</string>
+                    </property>
+                    <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                    </property>
+                </widget>
+            </item>
+            <item>
+                <widget class="QLabel" name="imageLabel">
+                    <property name="text">
+                        <string/>
+                    </property>
+                    <property name="pixmap">
+                        <pixmap>:/images/icons/about.svg</pixmap>
+                    </property>
+                    <property name="scaledContents">
+                        <bool>false</bool>
+                    </property>
+                    <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                    </property>
+                </widget>
+            </item>
+            <item>
+                <widget class="QScrollArea" name="scrollArea">
+                    <property name="widgetResizable">
+                        <bool>true</bool>
+                    </property>
+                    <widget class="QWidget" name="scrollAreaWidgetContents">
+                        <property name="geometry">
+                            <rect>
+                                <x>0</x>
+                                <y>0</y>
+                                <width>464</width>
+                                <height>260</height>
+                            </rect>
+                        </property>
+                        <layout class="QVBoxLayout" name="verticalLayout_2">
+                            <item>
+                                <widget class="QLabel" name="textLabel">
+                                    <property name="text">
+                                        <string>textLabel</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>Qt::AlignCenter</set>
+                                    </property>
+                                </widget>
+                            </item>
+                        </layout>
+                    </widget>
+                </widget>
+            </item>
+            <item>
+                <widget class="QDialogButtonBox" name="buttonBox">
+                    <property name="standardButtons">
+                        <set>QDialogButtonBox::Close</set>
+                    </property>
+                </widget>
+            </item>
+        </layout>
+    </widget>
+    <resources>
+        <include location="../resources.qrc"/>
+    </resources>
+    <connections/>
+</ui>

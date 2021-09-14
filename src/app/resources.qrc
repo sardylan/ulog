@@ -1,0 +1,24 @@
+<RCC>
+    <qresource prefix="/images/ui">
+        <file alias="tx">../../resources/images/ui/tx.png</file>
+        <file alias="rx">../../resources/images/ui/rx.png</file>
+        <file alias="onair">../../resources/images/ui/onair.png</file>
+    </qresource>
+
+    <qresource prefix="/images/actions">
+        <file alias="application-exit">../../resources/images/actions/application-exit.svg</file>
+        <file alias="document-new">../../resources/images/actions/document-new.svg</file>
+        <file alias="edit-delete">../../resources/images/actions/edit-delete.svg</file>
+        <file alias="help-about">../../resources/images/actions/help-about.svg</file>
+        <file alias="window-close">../../resources/images/actions/window-close.svg</file>
+    </qresource>
+
+    <qresource prefix="/images/licenses">
+        <file alias="gpl-v3-logo">../../resources/images/licenses/gpl-v3-logo.svg</file>
+    </qresource>
+
+    <qresource prefix="/text/licenses">
+        <file alias="gpl-3.0-markdown">../../resources/text/licenses/gpl-3.0.md</file>
+        <file alias="gpl-3.0-text">../../resources/text/licenses/gpl-3.0.txt</file>
+    </qresource>
+</RCC>

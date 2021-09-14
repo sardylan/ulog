@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>Config</class>
+    <widget class="QDialog" name="configWindow">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>480</width>
+                <height>360</height>
+            </rect>
+        </property>
+        <property name="minimumSize">
+            <size>
+                <width>480</width>
+                <height>360</height>
+            </size>
+        </property>
+        <property name="windowTitle">
+            <string>Configuration</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0">
+            <item row="2" column="0">
+                <widget class="QDialogButtonBox" name="buttonBox">
+                    <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="standardButtons">
+                        <set>QDialogButtonBox::Apply|QDialogButtonBox::Close|QDialogButtonBox::Ok|QDialogButtonBox::Reset</set>
+                    </property>
+                    <property name="centerButtons">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+            </item>
+            <item row="1" column="0">
+                <widget class="QTabWidget" name="tabWidget">
+                    <property name="currentIndex">
+                        <number>0</number>
+                    </property>
+                    <widget class="QWidget" name="dbTab">
+                        <attribute name="title">
+                            <string>Database</string>
+                        </attribute>
+                        <layout class="QGridLayout" name="gridLayout_2">
+                            <item row="0" column="0">
+                                <widget class="QLabel" name="dbTypeLabel">
+                                    <property name="text">
+                                        <string>Database Type</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="1" column="0">
+                                <widget class="QLabel" name="dbFileLabel">
+                                    <property name="text">
+                                        <string>DB File</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="1" column="1" colspan="3">
+                                <layout class="QHBoxLayout" name="dbFileLayout" stretch="1,0">
+                                    <item>
+                                        <widget class="QLineEdit" name="dbFileValue"/>
+                                    </item>
+                                    <item>
+                                        <widget class="QToolButton" name="dbFileButton">
+                                            <property name="text">
+                                                <string>...</string>
+                                            </property>
+                                        </widget>
+                                    </item>
+                                </layout>
+                            </item>
+                            <item row="2" column="0">
+                                <widget class="QLabel" name="dbHostLabel">
+                                    <property name="text">
+                                        <string>Host</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="2" column="1">
+                                <widget class="QLineEdit" name="dbHostValue"/>
+                            </item>
+                            <item row="2" column="2">
+                                <widget class="QLabel" name="dbPortLabel">
+                                    <property name="text">
+                                        <string>Port</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="2" column="3">
+                                <widget class="QLineEdit" name="dbPortValue"/>
+                            </item>
+                            <item row="3" column="0">
+                                <widget class="QLabel" name="dbUsernameLabel">
+                                    <property name="text">
+                                        <string>Username</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="3" column="1">
+                                <widget class="QLineEdit" name="dbUsernameValue"/>
+                            </item>
+                            <item row="4" column="0">
+                                <widget class="QLabel" name="dbPasswordLabel">
+                                    <property name="text">
+                                        <string>Password</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="4" column="1">
+                                <widget class="QLineEdit" name="dbPasswordValue"/>
+                            </item>
+                            <item row="5" column="0">
+                                <widget class="QLabel" name="dbNameLabel">
+                                    <property name="text">
+                                        <string>DB Name</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="5" column="1">
+                                <widget class="QLineEdit" name="dbNameValue"/>
+                            </item>
+                            <item row="6" column="0">
+                                <spacer name="dbVerticalSpacer">
+                                    <property name="orientation">
+                                        <enum>Qt::Vertical</enum>
+                                    </property>
+                                    <property name="sizeHint" stdset="0">
+                                        <size>
+                                            <width>20</width>
+                                            <height>40</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                            </item>
+                            <item row="0" column="1" colspan="3">
+                                <widget class="QComboBox" name="dbTypeComboBox"/>
+                            </item>
+                            <item row="5" column="3">
+                                <widget class="QPushButton" name="dbTestButton">
+                                    <property name="text">
+                                        <string>Test Connection</string>
+                                    </property>
+                                </widget>
+                            </item>
+                        </layout>
+                    </widget>
+                    <widget class="QWidget" name="rigctlSerialPortTab">
+                        <attribute name="title">
+                            <string>Hamlib CAT</string>
+                        </attribute>
+                        <layout class="QGridLayout" name="rigctlSerialPortGridLayout" rowstretch="0,0,0,0,0,0,0,0,0"
+                                columnstretch="0,1,0,1">
+                            <item row="4" column="1">
+                                <widget class="QComboBox" name="rigctlSerialPortDataBitsComboBox"/>
+                            </item>
+                            <item row="0" column="1" colspan="3">
+                                <widget class="QComboBox" name="rigctlSerialPortModelComboBox"/>
+                            </item>
+                            <item row="6" column="3">
+                                <widget class="QCheckBox" name="rigctlSerialPortEnableCTSCheckBox">
+                                    <property name="text">
+                                        <string>Enable CTS</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="0" column="0">
+                                <widget class="QLabel" name="rigctlSerialPortModelLabel">
+                                    <property name="text">
+                                        <string>Rig Model</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="6" column="0">
+                                <widget class="QLabel" name="rigctlSerialPortStopBitsLabel">
+                                    <property name="text">
+                                        <string>Stop bits</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="5" column="3">
+                                <widget class="QCheckBox" name="rigctlSerialPortEnableRTSCheckBox">
+                                    <property name="text">
+                                        <string>Enable RTS</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="2" column="0">
+                                <widget class="QLabel" name="rigctlSerialPortNameLabel">
+                                    <property name="text">
+                                        <string>Serial Port</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="6" column="1">
+                                <widget class="QComboBox" name="rigctlSerialPortStopBitsComboBox"/>
+                            </item>
+                            <item row="4" column="0">
+                                <widget class="QLabel" name="rigctlSerialPortDataBitsLabel">
+                                    <property name="text">
+                                        <string>Data bits</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="5" column="0">
+                                <widget class="QLabel" name="rigctlSerialPortParityLabel">
+                                    <property name="text">
+                                        <string>Parity</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="5" column="1">
+                                <widget class="QComboBox" name="rigctlSerialPortParityComboBox"/>
+                            </item>
+                            <item row="8" column="0">
+                                <spacer name="verticalSpacer">
+                                    <property name="orientation">
+                                        <enum>Qt::Vertical</enum>
+                                    </property>
+                                    <property name="sizeHint" stdset="0">
+                                        <size>
+                                            <width>20</width>
+                                            <height>54</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                            </item>
+                            <item row="2" column="1" colspan="3">
+                                <widget class="QComboBox" name="rigctlSerialPortNameComboBox"/>
+                            </item>
+                            <item row="3" column="1">
+                                <widget class="QComboBox" name="rigctlSerialPortBaudRateComboBox"/>
+                            </item>
+                            <item row="3" column="0">
+                                <widget class="QLabel" name="rigctlSerialPortBaudRateLabel">
+                                    <property name="text">
+                                        <string>BaudRate</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="3" column="2">
+                                <widget class="QLabel" name="rigctlSerialPortFlowControlLabel">
+                                    <property name="text">
+                                        <string>Flow control</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="3" column="3">
+                                <widget class="QComboBox" name="rigctlSerialPortFlowControlComboBox"/>
+                            </item>
+                            <item row="1" column="3">
+                                <widget class="QLineEdit" name="rigctlSerialPortCIVAddressValue"/>
+                            </item>
+                            <item row="1" column="2">
+                                <widget class="QLabel" name="rigctlSerialPortCIVAddressLabel">
+                                    <property name="text">
+                                        <string>CI-V Address</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="1" column="0">
+                                <widget class="QLabel" name="rigctlSerialPortPollingIntervalLabel">
+                                    <property name="text">
+                                        <string>Polling interval</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="1" column="1">
+                                <widget class="QSpinBox" name="rigctlSerialPortPollingIntervalSpinBox">
+                                    <property name="suffix">
+                                        <string>ms</string>
+                                    </property>
+                                    <property name="minimum">
+                                        <number>250</number>
+                                    </property>
+                                    <property name="maximum">
+                                        <number>5000</number>
+                                    </property>
+                                    <property name="singleStep">
+                                        <number>250</number>
+                                    </property>
+                                    <property name="stepType">
+                                        <enum>QAbstractSpinBox::DefaultStepType</enum>
+                                    </property>
+                                </widget>
+                            </item>
+                        </layout>
+                    </widget>
+                </widget>
+            </item>
+        </layout>
+    </widget>
+    <tabstops>
+        <tabstop>tabWidget</tabstop>
+        <tabstop>dbTypeComboBox</tabstop>
+        <tabstop>dbFileValue</tabstop>
+        <tabstop>dbFileButton</tabstop>
+        <tabstop>dbHostValue</tabstop>
+        <tabstop>dbPortValue</tabstop>
+        <tabstop>dbUsernameValue</tabstop>
+        <tabstop>dbPasswordValue</tabstop>
+        <tabstop>dbNameValue</tabstop>
+        <tabstop>dbTestButton</tabstop>
+        <tabstop>rigctlSerialPortModelComboBox</tabstop>
+        <tabstop>rigctlSerialPortPollingIntervalSpinBox</tabstop>
+        <tabstop>rigctlSerialPortCIVAddressValue</tabstop>
+        <tabstop>rigctlSerialPortNameComboBox</tabstop>
+        <tabstop>rigctlSerialPortBaudRateComboBox</tabstop>
+        <tabstop>rigctlSerialPortFlowControlComboBox</tabstop>
+        <tabstop>rigctlSerialPortDataBitsComboBox</tabstop>
+        <tabstop>rigctlSerialPortParityComboBox</tabstop>
+        <tabstop>rigctlSerialPortStopBitsComboBox</tabstop>
+        <tabstop>rigctlSerialPortEnableRTSCheckBox</tabstop>
+        <tabstop>rigctlSerialPortEnableCTSCheckBox</tabstop>
+    </tabstops>
+    <resources/>
+    <connections/>
+</ui>

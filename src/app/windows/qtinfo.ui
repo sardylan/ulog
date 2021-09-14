@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>QtInfo</class>
+    <widget class="QDialog" name="qtInfoWindow">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>480</width>
+                <height>360</height>
+            </rect>
+        </property>
+        <property name="windowTitle">
+            <string>About...</string>
+        </property>
+        <property name="windowIcon">
+            <iconset>
+                <normaloff>:/images/icons/application</normaloff>:/images/icons/application
+            </iconset>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+            <item row="0" column="0">
+                <widget class="QGroupBox" name="groupBox">
+                    <property name="title">
+                        <string>GroupBox</string>
+                    </property>
+                </widget>
+            </item>
+            <item row="1" column="0">
+                <widget class="QDialogButtonBox" name="buttonBox">
+                    <property name="standardButtons">
+                        <set>QDialogButtonBox::Close</set>
+                    </property>
+                </widget>
+            </item>
+        </layout>
+    </widget>
+    <resources>
+        <include location="../resources.qrc"/>
+    </resources>
+    <connections/>
+</ui>
