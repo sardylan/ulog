@@ -14,11 +14,11 @@
             <string>About...</string>
         </property>
         <property name="windowIcon">
-            <iconset resource="../resources.qrc">
+            <iconset>
                 <normaloff>:/images/icons/application</normaloff>:/images/icons/application
             </iconset>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1,0">
+        <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,1,0">
             <item>
                 <widget class="QLabel" name="titleLabel">
                     <property name="text">
@@ -46,6 +46,9 @@
                 </widget>
             </item>
             <item>
+                <widget class="QWidget" name="versionsWidget" native="true"/>
+            </item>
+            <item>
                 <widget class="QScrollArea" name="scrollArea">
                     <property name="widgetResizable">
                         <bool>true</bool>
@@ -56,7 +59,7 @@
                                 <x>0</x>
                                 <y>0</y>
                                 <width>464</width>
-                                <height>260</height>
+                                <height>250</height>
                             </rect>
                         </property>
                         <layout class="QVBoxLayout" name="verticalLayout_2">

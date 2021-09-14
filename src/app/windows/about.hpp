@@ -23,6 +23,8 @@
 #define __ULOG__APP__WINDOWS__ABOUT__H
 
 #include <QtWidgets/QDialog>
+#include <QtWidgets/QSpacerItem>
+#include <QtWidgets/QGridLayout>
 
 namespace Ui {
     class About;
@@ -43,9 +45,15 @@ namespace ulog::app::windows {
 
         Ui::About *ui;
 
+        int counter;
+        QGridLayout *gridLayout;
+        QSpacerItem *verticalSpacer;
+
         void connectSignals();
 
         void initUi();
+
+        void addParamValue(const QString &param, const QString &value);
 
         static QByteArray readFile(const QString &path);
 

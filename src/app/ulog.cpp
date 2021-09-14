@@ -163,9 +163,8 @@ void ULog::displayLicense() {
 void ULog::displayQtInfo() {
     qInfo() << "Display Qt Info window";
 
-    auto *qtInfoWiondow = new windows::QtInfo();
-    qtInfoWiondow->exec();
-    qtInfoWiondow->deleteLater();
+    const QString &title = QString("Qt Info - %1").arg(mainWindow->windowTitle());
+    QMessageBox::aboutQt(mainWindow, title);
 }
 
 void ULog::rigCtlStart() {
