@@ -29,6 +29,7 @@
 
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlTableModel>
+#include <QtSql/QSqlRecord>
 
 #define DATABASE_CONNECTION_NAME "ulog"
 
@@ -119,6 +120,8 @@ namespace ulog::app {
         void checkDDL();
 
         void prepareQsoTableModel();
+
+        void beforeUpdate(int row, QSqlRecord &record);
 
     signals:
 

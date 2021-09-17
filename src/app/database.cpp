@@ -324,6 +324,7 @@ void Database::prepareQsoTableModel() {
     qDebug() << "Creating Table Model";
     qsoTableModel = new QSqlTableModel(this, sqlDatabase);
     qsoTableModel->setTable(DATABASE_TABLE_NAME_QSO);
+    connect(qsoTableModel, &QSqlTableModel::beforeUpdate, this, &Database::beforeUpdate);
 
     qDebug() << "Reading fields";
     QSqlQuery sqlQuery(sqlDatabase);
@@ -385,4 +386,11 @@ void Database::prepareQsoTableModel() {
 
     qDebug() << "Selecting editing model";
     qsoTableModel->setEditStrategy(QSqlTableModel::OnFieldChange);
+}
+
+void Database::beforeUpdate(int row, QSqlRecord &record) {
+    Q_UNUSED(row);
+
+    qDebug() << "Setting QSO end time";
+    record.setValue("dt_end", QDateTime::currentDateTimeUtc());
 }
