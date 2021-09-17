@@ -36,6 +36,8 @@
 
 #include <hamlib/rig.h>
 
+#include <utilities/resources.hpp>
+
 #include "about.hpp"
 #include "ui_about.h"
 
@@ -46,7 +48,6 @@ About::About(QWidget *parent) : QDialog(parent), ui(new Ui::About) {
 
     counter = 0;
     gridLayout = new QGridLayout();
-    verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
     initUi();
     connectSignals();
@@ -54,37 +55,39 @@ About::About(QWidget *parent) : QDialog(parent), ui(new Ui::About) {
 
 About::~About() {
     delete gridLayout;
-    delete verticalSpacer;
     delete ui;
 }
 
 void About::initUi() {
-    qInfo() << "Initalizing UI";
+    qInfo() << "Initializing UI";
 
+    qDebug() << "Setting title";
     QFont titleFont = ui->titleLabel->font();
     titleFont.setBold(true);
     titleFont.setPointSize(18);
     ui->titleLabel->setFont(titleFont);
-    ui->titleLabel->setText(QString("%1\n%2")
-                                    .arg(QCoreApplication::applicationName())
-                                    .arg(QCoreApplication::applicationVersion()));
 
-    QByteArray data = readFile(":/icons/application");
+    const QString &title = QString("%1\n%2").arg(
+            QCoreApplication::applicationName(),
+            QCoreApplication::applicationVersion()
+    );
+    ui->titleLabel->setText(title);
+
+    qDebug() << "Setting logo";
+    QByteArray data = utilities::Resources::readFile(":/images/logos/application");
     QPixmap pixmap;
     pixmap.loadFromData(data);
-    const QPixmap &cropped = pixmap.copy(QRect(0, 256, 1024, 512));
-    const QPixmap &scaled = cropped.scaledToHeight(64, Qt::SmoothTransformation);
+    const QPixmap &scaled = pixmap.scaledToHeight(64, Qt::SmoothTransformation);
     ui->imageLabel->setPixmap(scaled);
 
+    qDebug() << "Setting versions";
     ui->versionsWidget->setLayout(gridLayout);
-
     addParamValue("Qt Version", QT_VERSION_STR);
     addParamValue("HamLib Version", hamlib_version);
 
-    gridLayout->addItem(verticalSpacer, counter, 0);
-
-    data = readFile(":/files/text/about");
-    ui->textLabel->setTextFormat(Qt::RichText);
+    qDebug() << "Setting text";
+    data = utilities::Resources::readFile(":/text/about/markdown");
+    ui->textLabel->setTextFormat(Qt::MarkdownText);
     ui->textLabel->setAlignment(Qt::AlignJustify);
     ui->textLabel->setText(QString(data));
     ui->textLabel->setWordWrap(true);
@@ -94,16 +97,6 @@ void About::connectSignals() {
     qInfo() << "Connecting signals";
 
     connect(ui->buttonBox->button(QDialogButtonBox::Close), &QAbstractButton::clicked, this, &About::close);
-}
-
-QByteArray About::readFile(const QString &path) {
-    qInfo() << "Reading file" << path;
-
-    QFile file(path);
-    file.open(QIODevice::ReadOnly);
-    QByteArray data = file.readAll();
-    file.close();
-    return data;
 }
 
 void About::addParamValue(const QString &param, const QString &value) {

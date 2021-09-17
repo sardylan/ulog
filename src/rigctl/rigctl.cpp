@@ -93,7 +93,9 @@ void RigCtl::hamlibStart() {
     quint32 model = params->getRigModel();
     rig = rig_init(model);
     if (rig == nullptr) {
-        qCritical() << "Unable to initialize HamLib";
+        const QString &message = "Unable to initialize HamLib";
+        qCritical() << message;
+        QMetaObject::invokeMethod(this, "error", Qt::QueuedConnection, Q_ARG(QString, message));
         return;
     }
 
@@ -286,7 +288,9 @@ void RigCtl::hamlibStart() {
     qDebug() << "Opening device";
     int returnCode = rig_open(rig);
     if (returnCode != RIG_OK) {
-        qCritical() << "Unable to open rig port" << rigerror(returnCode);
+        const QString &message = QString("Unable to open rig port: %1").arg(rigerror(returnCode));
+        qCritical() << message;
+        QMetaObject::invokeMethod(this, "error", Qt::QueuedConnection, Q_ARG(QString, message));
         hamlibStop();
         return;
     }

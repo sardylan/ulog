@@ -30,7 +30,7 @@
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlTableModel>
 
-#define DATABASE_FILE_NAME "/home/sardylan/develop/sardylan/ulog/ulog.sqlite"
+#define DATABASE_CONNECTION_NAME "ulog"
 
 #define DATABASE_TABLE_NAME_QSO "qso"
 #define DATABASE_TABLE_NAME_FIELDS "fields"
@@ -38,6 +38,9 @@
 #define DATABASE_DATA_ROLE_VISIBLE Qt::UserRole
 #define DATABASE_DATA_ROLE_TYPE Qt::UserRole + 1
 #define DATABASE_DATA_ROLE_FOCUS Qt::UserRole + 2
+#define DATABASE_DATA_ROLE_POSITION Qt::UserRole + 3
+
+#define DATABASE_VERSION 1
 
 namespace ulog::app {
 
@@ -49,6 +52,34 @@ namespace ulog::app {
         explicit Database(QObject *parent = nullptr);
 
         ~Database() override;
+
+        [[nodiscard]] const QString &getType() const;
+
+        void setType(const QString &newValue);
+
+        [[nodiscard]] const QString &getFile() const;
+
+        void setFile(const QString &newValue);
+
+        [[nodiscard]] const QString &getHost() const;
+
+        void setHost(const QString &newValue);
+
+        [[nodiscard]] quint16 getPort() const;
+
+        void setPort(quint16 newValue);
+
+        [[nodiscard]] const QString &getUsername() const;
+
+        void setUsername(const QString &newValue);
+
+        [[nodiscard]] const QString &getPassword() const;
+
+        void setPassword(const QString &newValue);
+
+        [[nodiscard]] const QString &getName() const;
+
+        void setName(const QString &newValue);
 
     public slots:
 
@@ -64,11 +95,20 @@ namespace ulog::app {
 
     private:
 
+        QString type;
+        QString file;
+        QString host;
+        quint16 port;
+        QString username;
+        QString password;
+        QString name;
+
         QMutex *mutex;
         bool opened;
         QSqlDatabase sqlDatabase;
         QSqlTableModel *qsoTableModel;
 
+        QStringList qsoFields;
         QMap<QString, QString> qsoFieldTypes;
         QMap<QString, QString> qsoFieldDescriptions;
         QMap<QString, bool> qsoFieldFocus;
@@ -77,9 +117,13 @@ namespace ulog::app {
 
         void closeDB();
 
+        void checkDDL();
+
         void prepareQsoTableModel();
 
     signals:
+
+        void error(QString message);
 
         void connected();
 

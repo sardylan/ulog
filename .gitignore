@@ -86,4 +86,4 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-ulog.sqlite
+*.sqlite

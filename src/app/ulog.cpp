@@ -37,7 +37,6 @@
 
 #include "windows/about.hpp"
 #include "windows/license.hpp"
-#include "windows/qtinfo.hpp"
 #include "windows/config.hpp"
 
 using namespace ulog;
@@ -55,8 +54,8 @@ ULog::ULog(QObject *parent) : QObject(parent) {
 }
 
 ULog::~ULog() {
-    delete database;
     delete mainWindow;
+    delete database;
     delete rigCtl;
     delete config;
     delete status;
@@ -86,13 +85,20 @@ void ULog::connectSignals() const {
     connect(mainWindow, &windows::Main::qsoAdd, database, &Database::qsoAdd, Qt::QueuedConnection);
     connect(mainWindow, &windows::Main::qsoRemove, database, &Database::qsoRemove, Qt::QueuedConnection);
 
+    connect(mainWindow, &windows::Main::databaseStart, this, &ULog::databaseStart, Qt::QueuedConnection);
+    connect(mainWindow, &windows::Main::databaseStop, this, &ULog::databaseStop, Qt::QueuedConnection);
+
     connect(database, &Database::newQsoTableModel, mainWindow, &windows::Main::setQsoTableModel, Qt::QueuedConnection);
     connect(database, &Database::dataRead, mainWindow, &windows::Main::updateTableView, Qt::QueuedConnection);
+
+    connect(database, &Database::connected, mainWindow, &windows::Main::dbConnected, Qt::QueuedConnection);
+    connect(database, &Database::disconnected, mainWindow, &windows::Main::dbDisconnected, Qt::QueuedConnection);
 
     connect(rigCtl, &rigctl::RigCtl::connected, mainWindow, &windows::Main::rigCtlConnected, Qt::QueuedConnection);
     connect(rigCtl, &rigctl::RigCtl::disconnected, mainWindow, &windows::Main::rigCtlDisconnected,
             Qt::QueuedConnection);
     connect(rigCtl, &rigctl::RigCtl::vfoUpdate, mainWindow, &windows::Main::vfoUpdate, Qt::QueuedConnection);
+    connect(rigCtl, &rigctl::RigCtl::error, mainWindow, &windows::Main::showStatusBarMessage, Qt::QueuedConnection);
 }
 
 void ULog::start() {
@@ -102,9 +108,6 @@ void ULog::start() {
     QMetaObject::invokeMethod(this, &ULog::configLoad, Qt::DirectConnection);
     QMetaObject::invokeMethod(this, &ULog::configSave, Qt::DirectConnection);
 
-    qDebug() << "Opening Database";
-    QMetaObject::invokeMethod(database, &Database::open, Qt::QueuedConnection);
-
     qDebug() << "Displaying main window";
     QMetaObject::invokeMethod(mainWindow, &QWidget::show, Qt::QueuedConnection);
 }
@@ -112,14 +115,14 @@ void ULog::start() {
 void ULog::stop() {
     qInfo() << "Stop";
 
-    qDebug() << "Closing RigCtl";
-    QMetaObject::invokeMethod(rigCtl, &rigctl::RigCtl::stop, Qt::QueuedConnection);
-
     qDebug() << "Closing Main Window";
     QMetaObject::invokeMethod(mainWindow, &windows::Main::close, Qt::QueuedConnection);
 
     qDebug() << "Closing Database";
     QMetaObject::invokeMethod(database, &Database::close, Qt::QueuedConnection);
+
+    qDebug() << "Closing RigCtl";
+    QMetaObject::invokeMethod(rigCtl, &rigctl::RigCtl::stop, Qt::QueuedConnection);
 
     QMetaObject::invokeMethod(this, &ULog::finished, Qt::QueuedConnection);
 }
@@ -192,4 +195,27 @@ void ULog::rigCtlStop() {
 
     QMetaObject::invokeMethod(mainWindow, &windows::Main::rigCtlDisconnecting, Qt::QueuedConnection);
     QMetaObject::invokeMethod(rigCtl, &rigctl::RigCtl::stop, Qt::QueuedConnection);
+}
+
+void ULog::databaseStart() {
+    qInfo() << "Starting database";
+
+    qDebug() << "Setting configuration parameters for database";
+    database->setType(config->getDatabase()->getType());
+    database->setFile(config->getDatabase()->getFile());
+    database->setHost(config->getDatabase()->getHost());
+    database->setPort(config->getDatabase()->getPort());
+    database->setUsername(config->getDatabase()->getUsername());
+    database->setPassword(config->getDatabase()->getPassword());
+    database->setName(config->getDatabase()->getName());
+
+    qDebug() << "Opening DB";
+    QMetaObject::invokeMethod(database, &Database::open, Qt::QueuedConnection);
+}
+
+void ULog::databaseStop() {
+    qInfo() << "Stopping database";
+
+    qDebug() << "Closing DB";
+    QMetaObject::invokeMethod(database, &Database::close, Qt::QueuedConnection);
 }

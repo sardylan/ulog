@@ -20,13 +20,21 @@
 
 
 #include <QtCore/QDebug>
+#include <QtCore/QMimeDatabase>
+#include <QtCore/QString>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
 
+#include <QtGui/QIcon>
+
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QDialogButtonBox>
 #include <QtWidgets/QComboBox>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QFileDialog>
 
 #include <QtSql/QSqlDatabase>
 
@@ -46,13 +54,24 @@ Config::Config(config::Config *config, QWidget *parent) : QDialog(parent), ui(ne
     Config::config = config;
     models = rigctl::models();
 
-    connectSignals();
     initUi();
+    connectSignals();
+
     valuesLoad();
 }
 
 Config::~Config() {
     delete ui;
+}
+
+void Config::initUi() {
+    qInfo() << "Initalizing UI";
+
+    setWindowIcon(QIcon(":/images/logos/application"));
+
+    initDbTypeComboBox();
+    initRigModelComboBox();
+    initRigSerialPortComboBoxes();
 }
 
 void Config::connectSignals() {
@@ -66,19 +85,13 @@ void Config::connectSignals() {
     connect(ui->buttonBox->button(QDialogButtonBox::Reset), &QPushButton::clicked, this, &Config::valuesLoad);
 
     connect(ui->dbTypeComboBox, &QComboBox::currentIndexChanged, this, &Config::updateDbFieldsVisibility);
-}
 
-void Config::initUi() {
-    qInfo() << "Initalizing UI";
-
-    qDebug() << "Initializing Rig Model Combo Box";
-    initDbTypeComboBox();
-
-    initRigModelComboBox();
-    initRigSerialPortComboBoxes();
+    connect(ui->dbFileButton, &QPushButton::clicked, this, &Config::chooseDbFile);
 }
 
 void Config::initDbTypeComboBox() {
+    qInfo() << "Initializing DB Type Combo Box";
+
     ui->dbTypeComboBox->clear();
 
     const QStringList &sqlDrivers = QSqlDatabase::drivers();
@@ -140,13 +153,15 @@ void Config::updateDbFieldsVisibility() {
 }
 
 void Config::initRigModelComboBox() {
+    qInfo() << "Initializing Rig Model Combo Box";
+
     ui->rigctlSerialPortModelComboBox->clear();
     for (auto i = models.keyBegin(); i != models.keyEnd(); i++)
         addRigModel(ui->rigctlSerialPortModelComboBox, *i);
 }
 
 void Config::initRigSerialPortComboBoxes() {
-    qInfo() << "Initializing serial port widgets";
+    qInfo() << "Initializing Serial Port Combo Boxes";
 
     qDebug() << "initializing portName ComboBox";
     QList<QSerialPortInfo> portList = QSerialPortInfo::availablePorts();
@@ -327,4 +342,45 @@ void Config::valuesSave() {
 
     qDebug() << "Saving configuration";
     QMetaObject::invokeMethod(this, &Config::configSave, Qt::QueuedConnection);
+}
+
+void Config::chooseDbFile() {
+    qInfo() << "Choose DB file";
+
+    QFileDialog fileDialog;
+//    fileDialog.setAcceptMode(QFileDialog::AcceptSave);
+    fileDialog.setFileMode(QFileDialog::AnyFile);
+    fileDialog.setDefaultSuffix("sqlite");
+//    fileDialog.setMimeTypeFilters("");
+    fileDialog.exec();
+
+    const QStringList &selectedFiles = fileDialog.selectedFiles();
+    if (selectedFiles.size() != 1) {
+        qWarning() << "No single file selected";
+        return;
+    }
+
+    const QString &selectedFile = selectedFiles[0];
+    qDebug() << "Selected file:" << selectedFile;
+
+    if (QFile::exists(selectedFile) && !isValidSQLite(selectedFile)) {
+        const QString &message = "Selected file is not valid";
+        qWarning() << message;
+        QMessageBox::warning(this, "Error on DB file", message);
+        return;
+    }
+
+    ui->dbFileValue->setText(selectedFile);
+}
+
+bool Config::isValidSQLite(const QString &path) {
+    qInfo() << "Checking if file is a valid SQLite database";
+
+    QMimeDatabase mimeDatabase;
+    auto mimeType = mimeDatabase.mimeTypeForFile(path);
+    qDebug() << mimeType.name();
+
+    bool isSQLite = mimeType.name() == "application/vnd.sqlite3"
+                    || mimeType.name() == "application/vnd.sqlite";
+    return mimeType.isValid() && isSQLite;
 }

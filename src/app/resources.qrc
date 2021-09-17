@@ -1,4 +1,9 @@
 <RCC>
+    <qresource prefix="/images/logos">
+        <file alias="application">../../resources/images/logos/application.svg</file>
+        <file alias="qt">../../resources/images/logos/qt.svg</file>
+    </qresource>
+
     <qresource prefix="/images/ui">
         <file alias="tx">../../resources/images/ui/tx.png</file>
         <file alias="rx">../../resources/images/ui/rx.png</file>
@@ -6,11 +11,26 @@
     </qresource>
 
     <qresource prefix="/images/actions">
-        <file alias="application-exit">../../resources/images/actions/application-exit.svg</file>
-        <file alias="document-new">../../resources/images/actions/document-new.svg</file>
-        <file alias="edit-delete">../../resources/images/actions/edit-delete.svg</file>
-        <file alias="help-about">../../resources/images/actions/help-about.svg</file>
-        <file alias="window-close">../../resources/images/actions/window-close.svg</file>
+        <file alias="application-exit">../../resources/images/actions/application-exit.svgz</file>
+        <file alias="appointment-new">../../resources/images/actions/appointment-new.svgz</file>
+        <file alias="configure">../../resources/images/actions/configure.svgz</file>
+        <file alias="document-close">../../resources/images/actions/document-close.svgz</file>
+        <file alias="document-open">../../resources/images/actions/document-open.svgz</file>
+        <file alias="document-new">../../resources/images/actions/document-new.svgz</file>
+        <file alias="document-save">../../resources/images/actions/document-save.svgz</file>
+        <file alias="document-save-all">../../resources/images/actions/document-save-all.svgz</file>
+        <file alias="document-save-as">../../resources/images/actions/document-save-as.svgz</file>
+        <file alias="edit-clear">../../resources/images/actions/edit-clear.svgz</file>
+        <file alias="edit-copy">../../resources/images/actions/edit-copy.svgz</file>
+        <file alias="edit-cut">../../resources/images/actions/edit-cut.svgz</file>
+        <file alias="edit-delete">../../resources/images/actions/edit-delete.svgz</file>
+        <file alias="edit-delete-shred">../../resources/images/actions/edit-delete-shred.svgz</file>
+        <file alias="edit-paste">../../resources/images/actions/edit-paste.svgz</file>
+        <file alias="help-about">../../resources/images/actions/help-about.svgz</file>
+        <file alias="network-connect">../../resources/images/actions/network-connect.svgz</file>
+        <file alias="network-disconnect">../../resources/images/actions/network-disconnect.svgz</file>
+        <file alias="server-database">../../resources/images/actions/server-database.svgz</file>
+        <file alias="window-close">../../resources/images/actions/window-close.svgz</file>
     </qresource>
 
     <qresource prefix="/images/licenses">
@@ -20,5 +40,19 @@
     <qresource prefix="/text/licenses">
         <file alias="gpl-3.0-markdown">../../resources/text/licenses/gpl-3.0.md</file>
         <file alias="gpl-3.0-text">../../resources/text/licenses/gpl-3.0.txt</file>
+    </qresource>
+
+    <qresource prefix="/text/about">
+        <file alias="markdown">../../resources/text/about/about.md</file>
+    </qresource>
+
+    <qresource prefix="/sql">
+        <file alias="create_version">../../resources/sql/create_version.sql</file>
+    </qresource>
+
+    <qresource prefix="/sql/versions">
+        <file alias="0-1-QSQLITE">../../resources/sql/versions/0-1-sqlite.sql</file>
+        <file alias="0-1-QSQLITE2">../../resources/sql/versions/0-1-sqlite.sql</file>
+        <file alias="0-1-QPSQL">../../resources/sql/versions/0-1-postgresql.sql</file>
     </qresource>
 </RCC>

@@ -15,7 +15,6 @@ add_executable(ulog
         WIN32 MACOSX_BUNDLE
         windows/main.cpp windows/main.hpp windows/main.ui
         windows/about.cpp windows/about.hpp windows/about.ui
-        windows/qtinfo.cpp windows/qtinfo.hpp windows/qtinfo.ui
         windows/license.cpp windows/license.hpp windows/license.ui
         windows/config.cpp windows/config.hpp windows/config.ui
         status.cpp status.hpp

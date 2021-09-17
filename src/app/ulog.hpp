@@ -86,6 +86,10 @@ namespace ulog::app {
 
         void rigCtlStop();
 
+        void databaseStart();
+
+        void databaseStop();
+
     signals:
 
         void finished();

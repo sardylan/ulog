@@ -26,7 +26,9 @@
                         <enum>Qt::Horizontal</enum>
                     </property>
                     <property name="standardButtons">
-                        <set>QDialogButtonBox::Apply|QDialogButtonBox::Close|QDialogButtonBox::Ok|QDialogButtonBox::Reset</set>
+                        <set>
+                            QDialogButtonBox::Apply|QDialogButtonBox::Close|QDialogButtonBox::Ok|QDialogButtonBox::Reset
+                        </set>
                     </property>
                     <property name="centerButtons">
                         <bool>false</bool>
@@ -60,7 +62,14 @@
                             <item row="1" column="1" colspan="3">
                                 <layout class="QHBoxLayout" name="dbFileLayout" stretch="1,0">
                                     <item>
-                                        <widget class="QLineEdit" name="dbFileValue"/>
+                                        <widget class="QLineEdit" name="dbFileValue">
+                                            <property name="frame">
+                                                <bool>true</bool>
+                                            </property>
+                                            <property name="readOnly">
+                                                <bool>true</bool>
+                                            </property>
+                                        </widget>
                                     </item>
                                     <item>
                                         <widget class="QToolButton" name="dbFileButton">

@@ -20,11 +20,13 @@
 
 
 #include <QtCore/QDebug>
-#include <QtCore/QMap>
 #include <QtCore/QDateTime>
 #include <QtCore/QItemSelectionModel>
 #include <QtCore/QModelIndexList>
 
+#include <QtSql/QSqlRecord>
+
+#include <QtGui/QCloseEvent>
 #include <QtGui/QShortcutEvent>
 
 #include <QtWidgets/QSizePolicy>
@@ -89,11 +91,13 @@ void Main::initUi() {
     ui->qsoRemoveAction->setShortcut(QCoreApplication::translate("Main", "F4", nullptr));
 #endif
 
+    qDebug() << "Setting Action in QSO Tool Buttons";
+    ui->qsoAddToolButton->setDefaultAction(ui->qsoAddAction);
+    ui->qsoRemoveToolButton->setDefaultAction(ui->qsoRemoveAction);
+
     qDebug() << "Initializing Clock timer";
     clockTimer->setInterval(1000);
     clockTimer->setSingleShot(false);
-    connect(clockTimer, &QTimer::timeout, this, &Main::updateClocks, Qt::QueuedConnection);
-    clockTimer->start();
 
     qDebug() << "Setting Size Policy for CAT Widgets";
     setWidgetSizePolicy(ui->vfoALabel);
@@ -113,6 +117,9 @@ void Main::initUi() {
     setWidgetSizePolicy(ui->vfoBStrengthValue);
 
     setWidgetSizePolicy(ui->onAirIcon);
+
+    setRigCtlFieldsVisibility(false);
+    setDbWidgetsEnabled(false);
 }
 
 void Main::initStatusBar() {
@@ -131,15 +138,24 @@ void Main::initStatusBar() {
 void Main::connectSignals() {
     qInfo() << "Connecting signals";
 
+    connect(clockTimer, &QTimer::timeout, this, &Main::updateClocks, Qt::QueuedConnection);
+
     connect(ui->exitAction, &QAction::triggered, this, &QMainWindow::close, Qt::QueuedConnection);
 
     connect(ui->showSettingsAction, &QAction::triggered, this, &Main::displayConfig, Qt::QueuedConnection);
 
-    connect(ui->toggleCATAction, &QAction::triggered, this, [this](bool checked) {
+    connect(ui->catToggleAction, &QAction::triggered, this, [this](bool checked) {
         if (checked)
             QMetaObject::invokeMethod(this, &Main::rigCtlStart, Qt::QueuedConnection);
         else
             QMetaObject::invokeMethod(this, &Main::rigCtlStop, Qt::QueuedConnection);
+    });
+
+    connect(ui->dbToggleAction, &QAction::triggered, this, [this](bool checked) {
+        if (checked)
+            QMetaObject::invokeMethod(this, &Main::databaseStart, Qt::QueuedConnection);
+        else
+            QMetaObject::invokeMethod(this, &Main::databaseStop, Qt::QueuedConnection);
     });
 
     connect(ui->showAboutAction, &QAction::triggered, this, &Main::displayAbout, Qt::QueuedConnection);
@@ -161,6 +177,8 @@ void Main::updateClocks() {
 }
 
 void Main::startUi() {
+    QMetaObject::invokeMethod(clockTimer, qOverload<>(&QTimer::start), Qt::QueuedConnection);
+
     QMetaObject::invokeMethod(this, &Main::updateWindowsTitle, Qt::QueuedConnection);
     QMetaObject::invokeMethod(this, &Main::updateClocks, Qt::QueuedConnection);
     QMetaObject::invokeMethod(this, &Main::updateCatWidgets, Qt::QueuedConnection);
@@ -172,8 +190,15 @@ void Main::setQsoTableModel(QSqlTableModel *qsoTableModel) {
 
     ui->qsoTableView->setModel(qsoTableModel);
 
+    QMap<QString, int> columnPositions;
+
     int columnCount = qsoTableModel->columnCount();
     for (int i = 0; i < columnCount; i++) {
+        QString columnName = qsoTableModel->record().fieldName(i);
+        int columnPosition = qsoTableModel->headerData(i, Qt::Horizontal, DATABASE_DATA_ROLE_POSITION).toInt();
+
+        columnPositions.insert(columnName, columnPosition);
+
         bool columnVisible = qsoTableModel->headerData(i, Qt::Horizontal, DATABASE_DATA_ROLE_VISIBLE).toBool();
 
         ui->qsoTableView->setColumnHidden(i, !columnVisible);
@@ -198,6 +223,32 @@ void Main::setQsoTableModel(QSqlTableModel *qsoTableModel) {
         }
     }
 
+    QList<int> columnPositionValues = columnPositions.values();
+    std::sort(columnPositionValues.begin(), columnPositionValues.end());
+
+    int pos = 0;
+    for (int columnPos: columnPositionValues) {
+        QString columnName = columnPositions.key(columnPos);
+
+        int originalPos = 0;
+        for (auto item = columnPositions.begin(); item != columnPositions.end(); item++) {
+            if (item.key() == columnName)
+                break;
+            originalPos++;
+        }
+
+        ui->qsoTableView->horizontalHeader()->moveSection(originalPos, pos);
+        pos++;
+    }
+
+    connect(ui->qsoTableView->model(), &QAbstractItemModel::rowsInserted,
+            ui->qsoTableView, &QTableView::resizeColumnsToContents,
+            Qt::QueuedConnection);
+
+    connect(ui->qsoTableView->model(), &QAbstractItemModel::rowsRemoved,
+            ui->qsoTableView, &QTableView::resizeColumnsToContents,
+            Qt::QueuedConnection);
+
     connect(ui->qsoTableView->model(), &QAbstractItemModel::rowsInserted, this, &Main::focusOnLastQso,
             Qt::QueuedConnection);
 
@@ -205,27 +256,27 @@ void Main::setQsoTableModel(QSqlTableModel *qsoTableModel) {
 }
 
 void Main::rigCtlConnecting() {
-    ui->toggleCATAction->setChecked(true);
-    ui->toggleCATAction->setEnabled(false);
+    ui->catToggleAction->setChecked(true);
+    ui->catToggleAction->setEnabled(false);
     statusBarRigCtlStatus->setText(tr("connecting..."));
 }
 
 void Main::rigCtlConnected(int vfoCount) {
-    ui->toggleCATAction->setChecked(true);
-    ui->toggleCATAction->setEnabled(true);
+    ui->catToggleAction->setChecked(true);
+    ui->catToggleAction->setEnabled(true);
     statusBarRigCtlStatus->setText(tr("connected"));
     setRigCtlFieldsVisibility(true, vfoCount);
 }
 
 void Main::rigCtlDisconnecting() {
-    ui->toggleCATAction->setChecked(false);
-    ui->toggleCATAction->setEnabled(false);
+    ui->catToggleAction->setChecked(false);
+    ui->catToggleAction->setEnabled(false);
     statusBarRigCtlStatus->setText(tr("disconnecting..."));
 }
 
 void Main::rigCtlDisconnected() {
-    ui->toggleCATAction->setChecked(false);
-    ui->toggleCATAction->setEnabled(true);
+    ui->catToggleAction->setChecked(false);
+    ui->catToggleAction->setEnabled(true);
     statusBarRigCtlStatus->setText(tr("disconnected"));
     setRigCtlFieldsVisibility(false);
 }
@@ -262,8 +313,10 @@ void Main::vfoUpdate(const ulog::rigctl::Update &update) {
 }
 
 void Main::closeEvent(QCloseEvent *event) {
-    QMetaObject::invokeMethod(this, &Main::closeApplication, Qt::QueuedConnection);
-    QWidget::closeEvent(event);
+    ui->qsoTableView->setModel(nullptr);
+
+    QMetaObject::invokeMethod(this, &Main::closeApplication);
+    event->accept();
 }
 
 QString Main::formatFrequency(quint64 frequency) {
@@ -368,6 +421,13 @@ void Main::updateStrength(int vfoNum, int strength) {
     }
 }
 
+void Main::setDbWidgetsEnabled(bool enabled) {
+    ui->dbToggleAction->setChecked(enabled);
+    ui->qsoTableView->setEnabled(enabled);
+    ui->qsoAddToolButton->setEnabled(enabled);
+    ui->qsoRemoveToolButton->setEnabled(enabled);
+}
+
 void Main::setWidgetSizePolicy(QWidget *widget) {
     QSizePolicy sizePolicy = widget->sizePolicy();
     sizePolicy.setRetainSizeWhenHidden(true);
@@ -380,6 +440,10 @@ void Main::updateModeLabel(QLabel *label, ulog::rigctl::Mode mode) {
 
 void Main::updateTableView() {
     ui->qsoTableView->resizeColumnsToContents();
+}
+
+void Main::showStatusBarMessage(const QString &message) {
+    ui->statusBar->showMessage(message, WINDOW_MAIN_STATUSBAR_MESSAGE_TIMEOUT);
 }
 
 void Main::qsoRemoveConfirm() {
@@ -428,4 +492,12 @@ void Main::focusOnLastQso() {
 
     ui->qsoTableView->setFocus();
     ui->qsoTableView->edit(modelIndex);
+}
+
+void Main::dbConnected() {
+    setDbWidgetsEnabled(true);
+}
+
+void Main::dbDisconnected() {
+    setDbWidgetsEnabled(false);
 }

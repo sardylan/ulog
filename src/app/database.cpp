@@ -28,20 +28,89 @@
 #include <QtSql/QSqlTableModel>
 #include <QtSql/QSqlRecord>
 #include <QtSql/QSqlField>
+#include <QtSql/QSqlError>
+
+#include <utilities/resources.hpp>
 
 #include "database.hpp"
 
 using namespace ulog::app;
 
 Database::Database(QObject *parent) : QObject(parent) {
+    type = "";
+    file = "";
+    host = "";
+    port = 0;
+    username = "";
+    password = "";
+    name = "";
+
     mutex = new QMutex();
     opened = false;
     qsoTableModel = nullptr;
 }
 
 Database::~Database() {
-    delete qsoTableModel;
+    if (qsoTableModel != nullptr)
+        qsoTableModel->deleteLater();
+
     delete mutex;
+}
+
+const QString &Database::getType() const {
+    return type;
+}
+
+void Database::setType(const QString &newValue) {
+    Database::type = newValue;
+}
+
+const QString &Database::getFile() const {
+    return file;
+}
+
+void Database::setFile(const QString &newValue) {
+    Database::file = newValue;
+}
+
+const QString &Database::getHost() const {
+    return host;
+}
+
+void Database::setHost(const QString &newValue) {
+    Database::host = newValue;
+}
+
+quint16 Database::getPort() const {
+    return port;
+}
+
+void Database::setPort(quint16 newValue) {
+    Database::port = newValue;
+}
+
+const QString &Database::getUsername() const {
+    return username;
+}
+
+void Database::setUsername(const QString &newValue) {
+    Database::username = newValue;
+}
+
+const QString &Database::getPassword() const {
+    return password;
+}
+
+void Database::setPassword(const QString &newValue) {
+    Database::password = newValue;
+}
+
+const QString &Database::getName() const {
+    return name;
+}
+
+void Database::setName(const QString &newValue) {
+    Database::name = newValue;
 }
 
 void Database::open() {
@@ -87,9 +156,9 @@ void Database::qsoAdd() {
         if (columnName == "dt_start")
             newRecord.setValue("dt_start", QDateTime::currentDateTimeUtc());
         else if (columnName == "tx_frequnecy")
-            newRecord.setValue("tx_frequnecy", 123456);
+            newRecord.setValue("tx_frequnecy", 0);
         else if (columnName == "rx_frequnecy")
-            newRecord.setValue("rx_frequnecy", 123456);
+            newRecord.setValue("rx_frequnecy", 0);
     }
 
     qDebug() << "Opening a DB transaction";
@@ -123,15 +192,40 @@ void Database::qsoRemove(int rowNumber) {
 void Database::openDB() {
     qInfo() << "Opening Database";
 
-    qDebug() << "Opening sqlite DB" << DATABASE_FILE_NAME;
-    sqlDatabase = QSqlDatabase::addDatabase("QSQLITE");
-    sqlDatabase.setDatabaseName(DATABASE_FILE_NAME);
+    qDebug() << "Verify driver" << type;
+    const QStringList &sqlDrivers = QSqlDatabase::drivers();
+    if (!sqlDrivers.contains(type)) {
+        const QString &message = "Database driver not valid";
+        qCritical() << message;
+        QMetaObject::invokeMethod(this, "error", Qt::QueuedConnection, Q_ARG(QString, message));
+        closeDB();
+        return;
+    }
+
+    qDebug() << "Configuring type" << type;
+    sqlDatabase = QSqlDatabase::addDatabase(type, DATABASE_CONNECTION_NAME);
+    if (type == "SQLITE" || type == "SQLITE2") {
+        qDebug() << "File:" << file;
+        sqlDatabase.setDatabaseName(file);
+    } else {
+        qDebug() << "Host:" << host << " - Port:" << port << " - Username:" << username << "DB name:" << name;
+        sqlDatabase.setHostName(host);
+        sqlDatabase.setPort(port);
+        sqlDatabase.setUserName(username);
+        sqlDatabase.setPassword(password);
+        sqlDatabase.setDatabaseName(name);
+    }
+
+    qDebug() << "Opening";
     if (!sqlDatabase.open()) {
         qCritical() << "Unable to Open database";
         closeDB();
         return;
     }
 
+    checkDDL();
+
+    qsoFields.clear();
     qsoFieldTypes.clear();
     qsoFieldDescriptions.clear();
     qsoFieldFocus.clear();
@@ -148,11 +242,14 @@ void Database::closeDB() {
     qInfo() << "Closing Database";
 
     qDebug() << "Deleting table model";
-    qsoTableModel->deleteLater();
+    if (qsoTableModel != nullptr)
+        qsoTableModel->deleteLater();
 
     qDebug() << "Closing database connection";
     sqlDatabase.close();
+    sqlDatabase = QSqlDatabase();
 
+    qsoFields.clear();
     qsoFieldTypes.clear();
     qsoFieldDescriptions.clear();
     qsoFieldFocus.clear();
@@ -160,17 +257,76 @@ void Database::closeDB() {
     opened = false;
 
     QMetaObject::invokeMethod(this, &Database::disconnected, Qt::QueuedConnection);
+    QMetaObject::invokeMethod(this, []() {
+        QSqlDatabase::removeDatabase(DATABASE_CONNECTION_NAME);
+    }, Qt::QueuedConnection);
+}
+
+void Database::checkDDL() {
+    qInfo() << "Checking DDL";
+
+    QString query;
+    QSqlQuery sqlQuery(sqlDatabase);
+    QSqlRecord sqlRecord;
+
+    qDebug() << "Checking version table";
+    if (!sqlDatabase.tables().contains("version")) {
+        QByteArray rawQuery = utilities::Resources::readFile(":/sql/create_version");
+        query = QString(rawQuery);
+        sqlQuery.exec(query);
+    }
+
+    qDebug() << "Checking database version";
+    int version;
+    query = "SELECT ver FROM version;";
+    sqlQuery.exec(query);
+    if (!sqlQuery.next()) {
+        version = 0;
+    } else {
+        sqlRecord = sqlQuery.record();
+        version = sqlRecord.value("ver").toInt();
+    }
+
+    qDebug() << "Version is" << version;
+
+    if (version == 0) {
+        qDebug() << "Applying version 1";
+
+        query = "INSERT INTO version (ver) VALUES(:version)";
+        sqlQuery.prepare(query);
+        sqlQuery.bindValue(":version", DATABASE_VERSION);
+        sqlQuery.exec();
+
+        QString filePath = QString(":/sql/versions/0-1-%1").arg(sqlDatabase.driverName());
+        QByteArray rawQuery = utilities::Resources::readFile(filePath);
+        QString stringQuery = QString(rawQuery);
+        stringQuery = stringQuery.replace('\n', ' ');
+        stringQuery = stringQuery.replace('\r', ' ');
+        stringQuery = stringQuery.replace('\t', ' ');
+        stringQuery = stringQuery.trimmed();
+
+        QStringList queries = stringQuery.split(";");
+        for (QString singleQuery: queries) {
+            singleQuery = singleQuery.trimmed();
+            if (singleQuery.length() == 0)
+                return;
+
+            qDebug() << singleQuery;
+            if (!sqlQuery.exec(singleQuery))
+                qWarning() << sqlQuery.lastError();
+        }
+    }
 }
 
 void Database::prepareQsoTableModel() {
     qInfo() << "Preparing QSO table model";
 
     qDebug() << "Creating Table Model";
-    qsoTableModel = new QSqlTableModel(nullptr, sqlDatabase);
+    qsoTableModel = new QSqlTableModel(this, sqlDatabase);
     qsoTableModel->setTable(DATABASE_TABLE_NAME_QSO);
 
     qDebug() << "Reading fields";
-    QSqlQuery sqlQuery;
+    QSqlQuery sqlQuery(sqlDatabase);
     QString query = QString("SELECT f.field_name  AS field_name, "
                             "       f.field_type  AS field_type, "
                             "       f.description AS description, "
@@ -178,22 +334,25 @@ void Database::prepareQsoTableModel() {
                             "FROM %1 f "
                             "WHERE f.table_name = :table_name "
                             "  AND f.enabled = TRUE "
-                            "ORDER BY f.position")
+                            "ORDER BY position")
             .arg(DATABASE_TABLE_NAME_FIELDS);
 
     sqlQuery.prepare(query);
     sqlQuery.bindValue(":table_name", DATABASE_TABLE_NAME_QSO);
     sqlQuery.exec();
 
-    sqlQuery.numRowsAffected();
-
     while (sqlQuery.next()) {
         QSqlRecord sqlRecord = sqlQuery.record();
         QString fieldName = sqlRecord.value("field_name").toString();
         QString fieldType = sqlRecord.value("field_type").toString();
         QString fieldDescription = sqlRecord.value("description").toString();
-        bool fieldFocus = static_cast<bool>(sqlRecord.value("position").toInt() == 0);
+        int position = sqlRecord.value("position").toInt();
 
+        bool fieldFocus = static_cast<bool>(position == 0);
+
+        qDebug() << "Parsing field" << fieldName << position;
+
+        qsoFields.append(fieldName);
         qsoFieldTypes.insert(fieldName, fieldType);
         qsoFieldDescriptions.insert(fieldName, fieldDescription);
         qsoFieldFocus.insert(fieldName, fieldFocus);
@@ -209,16 +368,18 @@ void Database::prepareQsoTableModel() {
         QString columnName = sqlRecord.fieldName(i);
         bool isVisible = qsoFieldDescriptions.contains(columnName);
 
+        qsoTableModel->setHeaderData(i, Qt::Horizontal, isVisible, DATABASE_DATA_ROLE_VISIBLE);
+        qsoTableModel->setHeaderData(i, Qt::Horizontal, isVisible, DATABASE_DATA_ROLE_POSITION);
+
         if (isVisible) {
             QString columnType = qsoFieldTypes.value(columnName);
             QString columnDescription = qsoFieldDescriptions.value(columnName);
             bool isFocus = qsoFieldFocus.value(columnName);
+
             qsoTableModel->setHeaderData(i, Qt::Horizontal, columnDescription);
             qsoTableModel->setHeaderData(i, Qt::Horizontal, columnType, DATABASE_DATA_ROLE_TYPE);
             qsoTableModel->setHeaderData(i, Qt::Horizontal, isFocus, DATABASE_DATA_ROLE_FOCUS);
         }
-
-        qsoTableModel->setHeaderData(i, Qt::Horizontal, isVisible, DATABASE_DATA_ROLE_VISIBLE);
     }
 
     qDebug() << "Selecting editing model";

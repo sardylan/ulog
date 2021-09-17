@@ -61,6 +61,8 @@ namespace ulog::app::windows {
 
         void addRigModel(QComboBox *comboBox, qlonglong number);
 
+        static bool isValidSQLite(const QString &path);
+
     private slots:
 
         void updateDbFieldsVisibility();
@@ -68,6 +70,8 @@ namespace ulog::app::windows {
         void valuesLoad();
 
         void valuesSave();
+
+        void chooseDbFile();
 
     signals:
 

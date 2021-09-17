@@ -19,43 +19,21 @@
  */
 
 
-#ifndef __ULOG__APP__WINDOWS__ABOUT__H
-#define __ULOG__APP__WINDOWS__ABOUT__H
+#include <QtCore/QDebug>
+#include <QtCore/QByteArray>
+#include <QtCore/QString>
+#include <QtCore/QFile>
 
-#include <QtWidgets/QDialog>
-#include <QtWidgets/QSpacerItem>
-#include <QtWidgets/QGridLayout>
+#include "resources.hpp"
 
-namespace Ui {
-    class About;
+using namespace ulog::utilities;
+
+QByteArray Resources::readFile(const QString &path) {
+    qInfo() << "Reading file" << path;
+
+    QFile file(path);
+    file.open(QIODevice::ReadOnly);
+    QByteArray data = file.readAll();
+    file.close();
+    return data;
 }
-
-namespace ulog::app::windows {
-
-    class About : public QDialog {
-    Q_OBJECT
-
-    public:
-
-        explicit About(QWidget *parent = nullptr);
-
-        ~About() override;
-
-    private:
-
-        Ui::About *ui;
-
-        int counter;
-        QGridLayout *gridLayout;
-
-        void connectSignals();
-
-        void initUi();
-
-        void addParamValue(const QString &param, const QString &value);
-
-    };
-
-}
-
-#endif

@@ -19,43 +19,18 @@
  */
 
 
-#ifndef __ULOG__APP__WINDOWS__QTINFO__H
-#define __ULOG__APP__WINDOWS__QTINFO__H
+#ifndef __ULOG__UTILITIES__RESOURCES__H
+#define __ULOG__UTILITIES__RESOURCES__H
 
-#include <QtCore/QObject>
+#include <QtCore/QString>
 
-#include <QtWidgets/QDialog>
-#include <QtWidgets/QSpacerItem>
-#include <QtWidgets/QGridLayout>
+namespace ulog::utilities {
 
-namespace Ui {
-    class QtInfo;
-}
-
-namespace ulog::app::windows {
-
-    class QtInfo : public QDialog {
-    Q_OBJECT
+    class Resources {
 
     public:
 
-        explicit QtInfo(QWidget *parent = nullptr);
-
-        ~QtInfo() override;
-
-    private:
-
-        Ui::QtInfo *ui;
-        int counter;
-
-        QGridLayout *gridLayout;
-        QSpacerItem *verticalSpacer;
-
-        void connectSignals();
-
-        void initUi();
-
-        void addParamValue(const QString &param, const QString &value);
+        static QByteArray readFile(const QString &path);
 
     };
 

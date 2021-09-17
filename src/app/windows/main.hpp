@@ -38,6 +38,7 @@
 #include "config/config.hpp"
 
 #define DATETIME_FORMAT "HH:mm:ss"
+#define WINDOW_MAIN_STATUSBAR_MESSAGE_TIMEOUT 5000
 
 namespace Ui {
     class Main;
@@ -69,6 +70,12 @@ namespace ulog::app::windows {
         void vfoUpdate(const ulog::rigctl::Update &update);
 
         void updateTableView();
+
+        void showStatusBarMessage(const QString &message);
+
+        void dbConnected();
+
+        void dbDisconnected();
 
     protected:
 
@@ -105,6 +112,8 @@ namespace ulog::app::windows {
 
         void updateStrength(int vfoNum, int strength);
 
+        void setDbWidgetsEnabled(bool enabled);
+
         static QString formatFrequency(quint64 frequency);
 
         static void setWidgetSizePolicy(QWidget *widget);
@@ -138,6 +147,10 @@ namespace ulog::app::windows {
         void rigCtlStart();
 
         void rigCtlStop();
+
+        void databaseStart();
+
+        void databaseStop();
 
         void modelReady();
 

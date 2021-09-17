@@ -96,6 +96,8 @@ namespace ulog::rigctl {
 
     signals:
 
+        void error(QString message);
+
         void connected(int vfoCount);
 
         void disconnected();

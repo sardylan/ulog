@@ -19,6 +19,11 @@
         <property name="windowTitle">
             <string>MainWindow</string>
         </property>
+        <property name="windowIcon">
+            <iconset resource="../resources.qrc">
+                <normaloff>:/images/logos/application</normaloff>:/images/logos/application
+            </iconset>
+        </property>
         <widget class="QWidget" name="mainWidget">
             <layout class="QGridLayout" name="mainLayout">
                 <item row="1" column="0">
@@ -42,6 +47,9 @@
                                         <width>24</width>
                                         <height>24</height>
                                     </size>
+                                </property>
+                                <property name="autoRaise">
+                                    <bool>false</bool>
                                 </property>
                             </widget>
                         </item>
@@ -568,13 +576,16 @@
                 <property name="title">
                     <string>&amp;File</string>
                 </property>
+                <addaction name="separator"/>
+                <addaction name="separator"/>
                 <addaction name="exitAction"/>
             </widget>
             <widget class="QMenu" name="menuConfiguration">
                 <property name="title">
                     <string>&amp;Configuration</string>
                 </property>
-                <addaction name="toggleCATAction"/>
+                <addaction name="dbToggleAction"/>
+                <addaction name="catToggleAction"/>
                 <addaction name="separator"/>
                 <addaction name="showSettingsAction"/>
             </widget>
@@ -611,11 +622,10 @@
             <attribute name="toolBarBreak">
                 <bool>false</bool>
             </attribute>
-            <addaction name="showSettingsAction"/>
-            <addaction name="toggleCATAction"/>
+            <addaction name="dbToggleAction"/>
+            <addaction name="catToggleAction"/>
             <addaction name="separator"/>
-            <addaction name="qsoAddAction"/>
-            <addaction name="qsoRemoveAction"/>
+            <addaction name="showSettingsAction"/>
         </widget>
         <action name="exitAction">
             <property name="icon">
@@ -627,15 +637,25 @@
                 <string>E&amp;xit</string>
             </property>
         </action>
-        <action name="toggleCATAction">
+        <action name="catToggleAction">
             <property name="checkable">
                 <bool>true</bool>
+            </property>
+            <property name="icon">
+                <iconset resource="../resources.qrc">
+                    <normaloff>:/images/actions/network-disconnect</normaloff>:/images/actions/network-disconnect
+                </iconset>
             </property>
             <property name="text">
                 <string>Enable &amp;CAT</string>
             </property>
         </action>
         <action name="showSettingsAction">
+            <property name="icon">
+                <iconset resource="../resources.qrc">
+                    <normaloff>:/images/actions/configure</normaloff>:/images/actions/configure
+                </iconset>
+            </property>
             <property name="text">
                 <string>&amp;Settings</string>
             </property>
@@ -651,11 +671,21 @@
             </property>
         </action>
         <action name="showQtInfoAction">
+            <property name="icon">
+                <iconset resource="../resources.qrc">
+                    <normaloff>:/images/logos/qt</normaloff>:/images/logos/qt
+                </iconset>
+            </property>
             <property name="text">
                 <string>&amp;Qt Info</string>
             </property>
         </action>
         <action name="showLicenseAction">
+            <property name="icon">
+                <iconset resource="../resources.qrc">
+                    <normaloff>:/images/licenses/gpl-v3-logo</normaloff>:/images/licenses/gpl-v3-logo
+                </iconset>
+            </property>
             <property name="text">
                 <string>License</string>
             </property>
@@ -663,7 +693,7 @@
         <action name="qsoAddAction">
             <property name="icon">
                 <iconset resource="../resources.qrc">
-                    <normaloff>:/images/actions/document-new</normaloff>:/images/actions/document-new
+                    <normaloff>:/images/actions/appointment-new</normaloff>:/images/actions/appointment-new
                 </iconset>
             </property>
             <property name="text">
@@ -676,7 +706,7 @@
         <action name="qsoRemoveAction">
             <property name="icon">
                 <iconset resource="../resources.qrc">
-                    <normaloff>:/images/actions/edit-delete</normaloff>:/images/actions/edit-delete
+                    <normaloff>:/images/actions/edit-delete-shred</normaloff>:/images/actions/edit-delete-shred
                 </iconset>
             </property>
             <property name="text">
@@ -684,6 +714,19 @@
             </property>
             <property name="shortcut">
                 <string>F4</string>
+            </property>
+        </action>
+        <action name="dbToggleAction">
+            <property name="checkable">
+                <bool>true</bool>
+            </property>
+            <property name="icon">
+                <iconset resource="../resources.qrc">
+                    <normaloff>:/images/actions/server-database</normaloff>:/images/actions/server-database
+                </iconset>
+            </property>
+            <property name="text">
+                <string>Connect DB</string>
             </property>
         </action>
     </widget>
