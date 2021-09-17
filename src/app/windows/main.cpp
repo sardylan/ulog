@@ -25,6 +25,7 @@
 #include <QtCore/QModelIndexList>
 
 #include <QtSql/QSqlRecord>
+#include <QtSql/QSqlField>
 
 #include <QtGui/QCloseEvent>
 #include <QtGui/QShortcutEvent>
@@ -32,6 +33,7 @@
 #include <QtWidgets/QSizePolicy>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QMessageBox>
+#include <QtWidgets/QHeaderView>
 
 #include <delegators/datetime.hpp>
 #include <delegators/string.hpp>
@@ -188,25 +190,25 @@ void Main::startUi() {
 void Main::setQsoTableModel(QSqlTableModel *qsoTableModel) {
     qInfo() << "Set QSO table Model";
 
+    qDebug() << "Setting model to view";
     ui->qsoTableView->setModel(qsoTableModel);
 
-    QMap<QString, int> columnPositions;
+    qDebug() << "Retrieving column extra data";
 
-    int columnCount = qsoTableModel->columnCount();
+    QMap<int, QString> columnPositions;
+
+    int columnCount = qsoTableModel->columnCount();;
     for (int i = 0; i < columnCount; i++) {
         QString columnName = qsoTableModel->record().fieldName(i);
-        int columnPosition = qsoTableModel->headerData(i, Qt::Horizontal, DATABASE_DATA_ROLE_POSITION).toInt();
-
-        columnPositions.insert(columnName, columnPosition);
 
         bool columnVisible = qsoTableModel->headerData(i, Qt::Horizontal, DATABASE_DATA_ROLE_VISIBLE).toBool();
+        QString columnType = qsoTableModel->headerData(i, Qt::Horizontal, DATABASE_DATA_ROLE_TYPE).toString();
+        int columnPosition = qsoTableModel->headerData(i, Qt::Horizontal, DATABASE_DATA_ROLE_POSITION).toInt();
 
+        columnPositions.insert(columnPosition, columnName);
         ui->qsoTableView->setColumnHidden(i, !columnVisible);
 
         if (columnVisible) {
-            QString columnType = qsoTableModel->headerData(i, Qt::Horizontal, DATABASE_DATA_ROLE_TYPE).toString();
-            bool columnIsFocus = qsoTableModel->headerData(i, Qt::Horizontal, DATABASE_DATA_ROLE_FOCUS).toBool();
-
             QAbstractItemDelegate *itemDelegate = nullptr;
 
             if (columnType == "QString")
@@ -216,6 +218,7 @@ void Main::setQsoTableModel(QSqlTableModel *qsoTableModel) {
 
             ui->qsoTableView->setItemDelegateForColumn(i, itemDelegate);
 
+            bool columnIsFocus = static_cast<bool>(columnPosition == 0);
             if (columnIsFocus) {
                 qDebug() << "Focus column for new records:" << i;
                 focusColumn = i;
@@ -223,22 +226,26 @@ void Main::setQsoTableModel(QSqlTableModel *qsoTableModel) {
         }
     }
 
-    QList<int> columnPositionValues = columnPositions.values();
-    std::sort(columnPositionValues.begin(), columnPositionValues.end());
+    qDebug() << "Changing column positions";
 
-    int pos = 0;
-    for (int columnPos: columnPositionValues) {
-        QString columnName = columnPositions.key(columnPos);
+    QSqlRecord sqlRecord = qsoTableModel->record();
 
-        int originalPos = 0;
-        for (auto item = columnPositions.begin(); item != columnPositions.end(); item++) {
-            if (item.key() == columnName)
-                break;
-            originalPos++;
-        }
+    QList<int> positions = columnPositions.keys();
+    std::sort(positions.begin(), positions.end());
 
-        ui->qsoTableView->horizontalHeader()->moveSection(originalPos, pos);
-        pos++;
+    QHeaderView *horizontalHeader = ui->qsoTableView->horizontalHeader();
+
+    QStringList columnNames;
+    for (int j = 0; j < columnCount; j++)
+        columnNames.append(sqlRecord.fieldName(j));
+
+    for (int pos = 0; pos < positions.size(); pos++) {
+        int dbPosition = positions[pos];
+        QString fieldName = columnPositions.value(dbPosition);
+
+        int initialPos = columnNames.indexOf(fieldName);
+        horizontalHeader->swapSections(initialPos, pos);
+        columnNames.swapItemsAt(initialPos, pos);
     }
 
     connect(ui->qsoTableView->model(), &QAbstractItemModel::rowsInserted,
@@ -249,7 +256,8 @@ void Main::setQsoTableModel(QSqlTableModel *qsoTableModel) {
             ui->qsoTableView, &QTableView::resizeColumnsToContents,
             Qt::QueuedConnection);
 
-    connect(ui->qsoTableView->model(), &QAbstractItemModel::rowsInserted, this, &Main::focusOnLastQso,
+    connect(ui->qsoTableView->model(), &QAbstractItemModel::rowsInserted,
+            this, &Main::focusOnLastQso,
             Qt::QueuedConnection);
 
     QMetaObject::invokeMethod(this, &Main::modelReady, Qt::QueuedConnection);

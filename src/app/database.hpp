@@ -37,8 +37,7 @@
 
 #define DATABASE_DATA_ROLE_VISIBLE Qt::UserRole
 #define DATABASE_DATA_ROLE_TYPE Qt::UserRole + 1
-#define DATABASE_DATA_ROLE_FOCUS Qt::UserRole + 2
-#define DATABASE_DATA_ROLE_POSITION Qt::UserRole + 3
+#define DATABASE_DATA_ROLE_POSITION Qt::UserRole + 2
 
 #define DATABASE_VERSION 1
 
@@ -108,10 +107,10 @@ namespace ulog::app {
         QSqlDatabase sqlDatabase;
         QSqlTableModel *qsoTableModel;
 
-        QStringList qsoFields;
-        QMap<QString, QString> qsoFieldTypes;
+        QMap<QString, bool> qsoFieldEnabled;
         QMap<QString, QString> qsoFieldDescriptions;
-        QMap<QString, bool> qsoFieldFocus;
+        QMap<QString, QString> qsoFieldTypes;
+        QMap<QString, int> qsoFieldPositions;
 
         void openDB();
 

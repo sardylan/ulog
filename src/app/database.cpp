@@ -225,10 +225,10 @@ void Database::openDB() {
 
     checkDDL();
 
-    qsoFields.clear();
+    qsoFieldEnabled.clear();
+    qsoFieldPositions.clear();
     qsoFieldTypes.clear();
     qsoFieldDescriptions.clear();
-    qsoFieldFocus.clear();
 
     prepareQsoTableModel();
 
@@ -249,10 +249,10 @@ void Database::closeDB() {
     sqlDatabase.close();
     sqlDatabase = QSqlDatabase();
 
-    qsoFields.clear();
+    qsoFieldEnabled.clear();
+    qsoFieldPositions.clear();
     qsoFieldTypes.clear();
     qsoFieldDescriptions.clear();
-    qsoFieldFocus.clear();
 
     opened = false;
 
@@ -330,10 +330,10 @@ void Database::prepareQsoTableModel() {
     QString query = QString("SELECT f.field_name  AS field_name, "
                             "       f.field_type  AS field_type, "
                             "       f.description AS description, "
-                            "       f.position AS position "
+                            "       f.position AS position, "
+                            "       f.enabled AS enabled "
                             "FROM %1 f "
                             "WHERE f.table_name = :table_name "
-                            "  AND f.enabled = TRUE "
                             "ORDER BY position")
             .arg(DATABASE_TABLE_NAME_FIELDS);
 
@@ -347,18 +347,23 @@ void Database::prepareQsoTableModel() {
         QString fieldType = sqlRecord.value("field_type").toString();
         QString fieldDescription = sqlRecord.value("description").toString();
         int position = sqlRecord.value("position").toInt();
+        bool enabled = sqlRecord.value("enabled").toBool();
 
-        bool fieldFocus = static_cast<bool>(position == 0);
+        qDebug() << "fieldName" << fieldName
+                 << "-"
+                 << "fieldType" << fieldType
+                 << "-"
+                 << "fieldDescription" << fieldDescription
+                 << "-"
+                 << "position" << position
+                 << "-"
+                 << "enabled" << enabled;
 
-        qDebug() << "Parsing field" << fieldName << position;
-
-        qsoFields.append(fieldName);
-        qsoFieldTypes.insert(fieldName, fieldType);
+        qsoFieldEnabled.insert(fieldName, enabled);
         qsoFieldDescriptions.insert(fieldName, fieldDescription);
-        qsoFieldFocus.insert(fieldName, fieldFocus);
+        qsoFieldTypes.insert(fieldName, fieldType);
+        qsoFieldPositions.insert(fieldName, position);
     }
-
-    qDebug() << qsoFieldFocus;
 
     qDebug() << "Setting headers";
     QSqlRecord sqlRecord = qsoTableModel->record();
@@ -366,20 +371,16 @@ void Database::prepareQsoTableModel() {
 
     for (int i = 0; i < columnCount; i++) {
         QString columnName = sqlRecord.fieldName(i);
-        bool isVisible = qsoFieldDescriptions.contains(columnName);
 
+        bool isVisible = qsoFieldEnabled.value(columnName);
+        QString columnDescription = qsoFieldDescriptions.value(columnName);
+        QString columnType = qsoFieldTypes.value(columnName);
+        int position = qsoFieldPositions.value(columnName);
+
+        qsoTableModel->setHeaderData(i, Qt::Horizontal, columnDescription);
         qsoTableModel->setHeaderData(i, Qt::Horizontal, isVisible, DATABASE_DATA_ROLE_VISIBLE);
-        qsoTableModel->setHeaderData(i, Qt::Horizontal, isVisible, DATABASE_DATA_ROLE_POSITION);
-
-        if (isVisible) {
-            QString columnType = qsoFieldTypes.value(columnName);
-            QString columnDescription = qsoFieldDescriptions.value(columnName);
-            bool isFocus = qsoFieldFocus.value(columnName);
-
-            qsoTableModel->setHeaderData(i, Qt::Horizontal, columnDescription);
-            qsoTableModel->setHeaderData(i, Qt::Horizontal, columnType, DATABASE_DATA_ROLE_TYPE);
-            qsoTableModel->setHeaderData(i, Qt::Horizontal, isFocus, DATABASE_DATA_ROLE_FOCUS);
-        }
+        qsoTableModel->setHeaderData(i, Qt::Horizontal, columnType, DATABASE_DATA_ROLE_TYPE);
+        qsoTableModel->setHeaderData(i, Qt::Horizontal, position, DATABASE_DATA_ROLE_POSITION);
     }
 
     qDebug() << "Selecting editing model";
