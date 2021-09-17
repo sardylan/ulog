@@ -23,6 +23,7 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QItemSelectionModel>
 #include <QtCore/QModelIndexList>
+#include <QtCore/QItemSelectionModel>
 
 #include <QtSql/QSqlRecord>
 #include <QtSql/QSqlField>
@@ -192,6 +193,13 @@ void Main::setQsoTableModel(QSqlTableModel *qsoTableModel) {
 
     qDebug() << "Setting model to view";
     ui->qsoTableView->setModel(qsoTableModel);
+
+    qDebug() << "Connecting signals of TableModel";
+    connect(ui->qsoTableView->selectionModel(), &QItemSelectionModel::selectionChanged,
+            [](const QItemSelection &selected, const QItemSelection &deselected) {
+                qDebug() << "selectionChanged" << selected << deselected;
+            }
+    );
 
     qDebug() << "Retrieving column extra data";
 
